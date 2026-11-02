@@ -324,79 +324,99 @@ async function deleteMessage(id) {
   if (response.ok) loadMessages();
 }
 
-// ---------- Profile photo ----------
+// ---------- Profile photo and CV ----------
 const photoForm = document.getElementById('photo-form');
 const photoPreview = document.getElementById('photo-preview');
 const photoStatus = document.getElementById('photo-status');
 const photoRemove = document.getElementById('photo-remove');
 
+const cvForm = document.getElementById('cv-form');
+const cvCurrent = document.getElementById('cv-current');
+const cvStatus = document.getElementById('cv-status');
+const cvRemove = document.getElementById('cv-remove');
+
 async function loadProfile() {
   const response = await fetch('/api/profile');
-  const { photo } = await response.json();
+  const { photo, cv } = await response.json();
 
   photoPreview.innerHTML = photo
     ? `<img class="profile-photo small" src="/uploads/${escapeHtml(photo)}" alt="Your profile photo">`
     : '<p>No photo yet.</p>';
   photoRemove.hidden = !photo;
+
+  cvCurrent.innerHTML = cv
+    ? `<p>Current CV: <a href="/uploads/${escapeHtml(cv)}" target="_blank" rel="noopener">view PDF</a></p>`
+    : '<p>No CV uploaded yet.</p>';
+  cvRemove.hidden = !cv;
 }
 
-photoForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const file = document.getElementById('photo').files[0];
-  if (!file) return;
-
-  const formData = new FormData();
-  formData.append('photo', file);
-
-  const response = await fetch('/api/profile/photo', { method: 'POST', body: formData });
-  const result = await response.json();
-
-  if (response.status === 401) return showLogin();
-
-  if (response.ok) {
-    photoStatus.textContent = 'Photo updated.';
-    photoForm.reset();
-    loadProfile();
-  } else {
-    photoStatus.textContent = result.error;
-  }
-});
-
-photoForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-
-  const file = document.getElementById('photo').files[0];
+// One function for both uploads, with clear messages for every outcome
+async function uploadFile(url, field, fileInput, statusEl, form, successMessage) {
+  const file = fileInput.files[0];
   if (!file) {
-    photoStatus.textContent = 'Please choose a photo first.';
+    statusEl.textContent = 'Please choose a file first.';
     return;
   }
 
   const formData = new FormData();
-  formData.append('photo', file);
-  photoStatus.textContent = 'Uploading...';
+  formData.append(field, file);
+  statusEl.textContent = 'Uploading...';
 
   try {
-    const response = await fetch('/api/profile/photo', { method: 'POST', body: formData });
+    const response = await fetch(url, { method: 'POST', body: formData });
 
     if (response.status === 401) return showLogin();
     if (response.status === 404) {
-      photoStatus.textContent = 'Upload route not found. Check server.js and restart the server.';
+      statusEl.textContent = 'Upload route not found. Restart the server.';
       return;
     }
 
     const result = await response.json();
 
     if (response.ok) {
-      photoStatus.textContent = 'Photo updated.';
-      photoForm.reset();
+      statusEl.textContent = successMessage;
+      form.reset();
       loadProfile();
     } else {
-      photoStatus.textContent = result.error;
+      statusEl.textContent = result.error;
     }
   } catch (error) {
-    photoStatus.textContent = 'Upload failed. Check the browser console and the terminal.';
+    statusEl.textContent = 'Upload failed. Check the browser console and the terminal.';
     console.error(error);
+  }
+}
+
+photoForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  uploadFile('/api/profile/photo', 'photo', document.getElementById('photo'),
+             photoStatus, photoForm, 'Photo updated.');
+});
+
+cvForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  uploadFile('/api/profile/cv', 'cv', document.getElementById('cv'),
+             cvStatus, cvForm, 'CV uploaded.');
+});
+
+async function removeItem(url, statusEl, message) {
+  const response = await fetch(url, { method: 'DELETE' });
+
+  if (response.status === 401) return showLogin();
+  if (response.ok) {
+    statusEl.textContent = message;
+    loadProfile();
+  }
+}
+
+photoRemove.addEventListener('click', () => {
+  if (confirm('Remove your profile photo?')) {
+    removeItem('/api/profile/photo', photoStatus, 'Photo removed.');
+  }
+});
+
+cvRemove.addEventListener('click', () => {
+  if (confirm('Remove your CV?')) {
+    removeItem('/api/profile/cv', cvStatus, 'CV removed.');
   }
 });
 

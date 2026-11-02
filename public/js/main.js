@@ -157,20 +157,29 @@ document.getElementById('show-more').addEventListener('click', () => {
   renderProjects();
 });
 
-// ---------- Profile photo ----------
+// ---------- Profile photo and CV ----------
 async function loadProfile() {
   try {
     const response = await fetch('/api/profile');
-    const { photo } = await response.json();
-    if (!photo) return;
+    const { photo, cv } = await response.json();
 
-    const img = document.getElementById('profile-photo');
-    img.src = '/uploads/' + encodeURIComponent(photo);
-    img.hidden = false;
-    img.tabIndex = 0;
-    img.title = 'Click to enlarge';
+    if (photo) {
+      const img = document.getElementById('profile-photo');
+      img.src = '/uploads/' + encodeURIComponent(photo);
+      img.hidden = false;
+      img.tabIndex = 0;
+      img.title = 'Click to enlarge';
+    }
+
+    // Show the CV buttons only when a CV has been uploaded
+    if (cv) {
+      document.querySelectorAll('.cv-link').forEach(link => {
+        link.href = '/uploads/' + encodeURIComponent(cv);
+        link.hidden = false;
+      });
+    }
   } catch (error) {
-    // No photo, the page simply shows the text
+    // Nothing uploaded yet, the page simply shows less
   }
 }
 
