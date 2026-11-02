@@ -29,6 +29,14 @@ function showDashboard() {
 // ---------- Messages ----------
 const messageList = document.getElementById('message-list');
 
+// Turns 0712 345 678 or +254 712 345 678 into 254712345678 (what WhatsApp links need)
+function toWhatsAppNumber(phone) {
+  let digits = phone.replace(/\D/g, '');
+  if (digits.startsWith('0')) digits = '254' + digits.slice(1);
+  if (digits.length === 9) digits = '254' + digits;
+  return digits;
+}
+
 async function loadMessages() {
   const response = await fetch('/api/contact');
 
@@ -49,13 +57,23 @@ async function loadMessages() {
     const mailtoLink = `mailto:${to}?subject=${subject}&body=${body}`;
     const gmailLink = `https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`;
 
+    // Only show the WhatsApp button if the visitor left a number
+    let whatsappButton = '';
+    if (m.phone) {
+      const text = encodeURIComponent(`Hi ${m.name}, thank you for reaching out through my portfolio.`);
+      const whatsappLink = `https://wa.me/${toWhatsAppNumber(m.phone)}?text=${text}`;
+      whatsappButton = `<a class="btn whatsapp" href="${whatsappLink}" target="_blank" rel="noopener">Reply on WhatsApp</a>`;
+    }
+
     return `
       <div class="message">
         <p><strong>${escapeHtml(m.name)}</strong> (${escapeHtml(m.email)})</p>
+        ${m.phone ? `<p>Phone: ${escapeHtml(m.phone)}</p>` : ''}
         <p><small>${new Date(m.created_at + 'Z').toLocaleString()}</small></p>
         <p style="white-space: pre-wrap;">${escapeHtml(m.message)}</p>
         <a class="btn" href="${mailtoLink}">Reply</a>
         <a class="btn outline" href="${gmailLink}" target="_blank" rel="noopener">Reply in Gmail</a>
+        ${whatsappButton}
         <button onclick="deleteMessage(${m.id})">Delete</button>
       </div>
     `;

@@ -51,6 +51,7 @@ form.addEventListener('submit', async (event) => {
   const data = {
     name: document.getElementById('name').value,
     email: document.getElementById('email').value,
+    phone: document.getElementById('phone').value,
     message: document.getElementById('message').value
   };
 

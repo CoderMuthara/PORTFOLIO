@@ -26,6 +26,12 @@ db.exec(`
   )
 `);
 
+// Add the phone column if it isn't there yet
+const messageColumns = db.prepare('PRAGMA table_info(messages)').all();
+if (!messageColumns.some(column => column.name === 'phone')) {
+  db.exec("ALTER TABLE messages ADD COLUMN phone TEXT DEFAULT ''");
+}
+
 // Add sample data only if the table is empty
 const count = db.prepare('SELECT COUNT(*) AS total FROM projects').get().total;
 if (count === 0) {

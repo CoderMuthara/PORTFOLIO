@@ -5,11 +5,12 @@ const requireAuth = require('../middleware/auth');
 const router = express.Router();
 
 // POST /api/contact -> public, visitors send a message
+// POST /api/contact -> public, visitors send a message
 router.post('/', (req, res) => {
-  const { name, email, message } = req.body;
+  const { name, email, phone, message } = req.body;
 
   if (!name || !email || !message) {
-    return res.status(400).json({ error: 'All fields are required.' });
+    return res.status(400).json({ error: 'Name, email and message are required.' });
   }
   if (!email.includes('@')) {
     return res.status(400).json({ error: 'Please enter a valid email.' });
@@ -18,8 +19,14 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'One of the fields is too long.' });
   }
 
-  db.prepare('INSERT INTO messages (name, email, message) VALUES (?, ?, ?)')
-    .run(name.trim(), email.trim(), message.trim());
+  // Phone is optional, but if given it must look like a phone number
+  const cleanPhone = (phone || '').trim();
+  if (cleanPhone && !/^\+?[0-9\s-]{9,15}$/.test(cleanPhone)) {
+    return res.status(400).json({ error: 'Please enter a valid phone number.' });
+  }
+
+  db.prepare('INSERT INTO messages (name, email, phone, message) VALUES (?, ?, ?, ?)')
+    .run(name.trim(), email.trim(), cleanPhone, message.trim());
 
   res.status(201).json({ success: true });
 });
