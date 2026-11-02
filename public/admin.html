@@ -10,7 +10,7 @@
 
 <body>
   <!-- Shown when logged out -->
-    <div id="login-section" class="container narrow">
+  <div id="login-section" class="container narrow">
     <h1>Admin Login</h1>
     <form id="login-form">
       <input type="text" id="username" placeholder="Username" required>
@@ -21,29 +21,61 @@
   </div>
 
   <!-- Shown when logged in -->
-    <div id="dashboard-section" class="container" hidden>
+  <div id="dashboard-section" class="container" hidden>
     <h1>Dashboard</h1>
-    <button id="logout-btn">Log out</button>
+    <p>
+      <button id="logout-btn" class="ghost">Log out</button>
+      <a href="/" class="btn outline">View site</a>
+    </p>
+
+    <!-- Suggestions for category boxes (you can still type your own) -->
+    <datalist id="category-options">
+      <option value="Software Development">
+      <option value="Networking">
+      <option value="Cybersecurity">
+    </datalist>
+
+    <h2>Profile photo</h2>
+    <div id="photo-preview"></div>
+    <form id="photo-form">
+      <input type="file" id="photo" accept="image/jpeg,image/png,image/webp" required>
+      <button type="submit">Upload photo</button>
+      <button type="button" id="photo-remove" class="danger" hidden>Remove photo</button>
+      <p id="photo-status"></p>
+    </form>
+
+    <h2>Skills</h2>
+    <form id="skill-form">
+      <input type="hidden" id="skill-id">
+      <input type="text" id="skill-name" placeholder="Skill (e.g. Wireshark)" required maxlength="50">
+      <input type="text" id="skill-category" list="category-options" placeholder="Category (e.g. Cybersecurity)"
+        required maxlength="50">
+      <button type="submit" id="skill-save-btn">Add skill</button>
+      <button type="button" id="skill-cancel-btn" class="ghost" hidden>Cancel edit</button>
+      <p id="skill-status"></p>
+    </form>
+    <div id="skill-list"></div>
 
     <h2 id="form-title">Add a project</h2>
     <form id="project-form">
       <input type="hidden" id="project-id">
-      <input type="text" id="title" placeholder="Title" required>
-      <input type="text" id="category" placeholder="Category (e.g. Mobile / Web App)" maxlength="50">
-      <input type="text" id="tech" placeholder="Tags, separated by commas (e.g. Menu browsing, Cart & orders)" required>
-      <textarea id="description" placeholder="Description" rows="3" required></textarea>
-      <input type="text" id="tech" placeholder="Tech used (e.g. Node.js, Express)" required>
+      <input type="text" id="title" placeholder="Title" required maxlength="100">
+      <input type="text" id="category" list="category-options" placeholder="Category (e.g. Networking)" maxlength="50">
+      <textarea id="description" placeholder="Description" rows="3" required maxlength="1000"></textarea>
+      <input type="text" id="tech" placeholder="Tags, separated by commas (e.g. Packet Tracer, VLANs, OSPF)" required
+        maxlength="200">
       <input type="url" id="live_url" placeholder="Live link (https://...)">
-      <input type="url" id="code_url" placeholder="GitHub link (https://...)">
+      <input type="url" id="code_url" placeholder="GitHub / write-up link (https://...)">
       <label for="image">Project image (JPG, PNG or WebP, max 2 MB)</label>
       <input type="file" id="image" accept="image/jpeg,image/png,image/webp">
       <button type="submit" id="save-btn">Add project</button>
-      <button type="button" id="cancel-btn" hidden>Cancel edit</button>
+      <button type="button" id="cancel-btn" class="ghost" hidden>Cancel edit</button>
       <p id="project-status"></p>
     </form>
 
     <h2>Your projects</h2>
     <div id="project-list"></div>
+
     <h2>Messages</h2>
     <div id="message-list"></div>
   </div>

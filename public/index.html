@@ -6,10 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Portfolio of Kelvin Muthara, an aspiring software developer.">
   <title>Kelvin Muthara | Software Developer</title>
-  <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@700;800&display=swap"rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body id="top">
@@ -27,49 +29,52 @@
 
   <main>
     <section class="hero">
-      <div class="container">
-        <p class="eyebrow">Hello, I'm</p>
-        <h1>Kelvin Muthara</h1>
-        <p class="tagline">
-          Aspiring software developer at Laikipia University, building web apps
-          with JavaScript and Node.js. Currently looking for an attachment opportunity.
-        </p>
-        <div class="buttons">
-          <a class="btn" href="#projects">View my work</a>
-          <a class="btn outline" href="https://github.com/CoderMuthara" target="_blank"
-            rel="noopener">GitHub</a>
-          <a class="btn outline" href="#contact">Contact me</a>
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <p class="eyebrow">Hello, I'm</p>
+          <h1>Kelvin Muthara</h1>
+          <p class="tagline">
+            Aspiring software developer at Laikipia University, building web apps
+            with JavaScript and Node.js. Currently looking for an attachment opportunity.
+          </p>
+          <div class="buttons">
+            <a class="btn" href="#projects">View my work</a>
+            <a class="btn outline" href="https://github.com/YOUR-GITHUB-USERNAME" target="_blank"
+              rel="noopener">GitHub</a>
+            <a class="btn outline" href="#contact">Contact me</a>
+          </div>
         </div>
+        <img id="profile-photo" class="profile-photo" alt="Photo of Kelvin Muthara" hidden>
       </div>
     </section>
 
-    <section id="work">
+    <section id="about">
       <div class="container">
-        <p class="eyebrow">Selected work</p>
-        <h2 class="section-title">Things I've built.</h2>
-        <div id="projects" class="work-grid"></div>
+        <h2>About</h2>
+        <p>
+          I'm a student at Laikipia University learning full-stack web development.
+          I enjoy turning ideas into working applications, and I'm looking for an
+          attachment where I can learn from experienced developers and contribute to real projects.
+        </p>
       </div>
     </section>
 
     <section id="skills">
       <div class="container">
         <h2>Skills</h2>
-        <ul class="skills">
-          <li>HTML</li>
-          <li>CSS</li>
-          <li>JavaScript</li>
-          <li>Node.js</li>
-          <li>Express</li>
-          <li>SQLite</li>
-          <li>Git &amp; GitHub</li>
-        </ul>
+        <div id="skills-list"></div>
       </div>
     </section>
 
-    <section id="projects">
+    <section id="projects" class="alt">
       <div class="container">
         <h2>Projects</h2>
-        <div id="projects" class="project-grid"></div>
+        <p class="section-intro">Software, networking and security work I've built or practised.</p>
+        <div id="project-filters" class="filters"></div>
+        <div id="project-grid" class="work-grid"></div>
+        <div class="more-wrap">
+          <button type="button" id="show-more" class="btn outline" hidden>Show more projects</button>
+        </div>
       </div>
     </section>
 
@@ -77,6 +82,7 @@
       <div class="container">
         <h2>Contact me</h2>
         <p>Have an opportunity or a question? Send me a message.</p>
+
         <p>
           <a class="btn whatsapp" href="https://wa.me/254762784914?text=Hello%20Kelvin%2C%20I%20saw%20your%20portfolio."
             target="_blank" rel="noopener">Chat on WhatsApp</a>
@@ -84,6 +90,7 @@
         </p>
         <p>Phone: <a href="tel:+254762784914">+254 762 784 914</a></p>
         <p>Or use the form:</p>
+
         <form id="contact-form">
           <input type="text" id="name" placeholder="Your name" required maxlength="100">
           <input type="email" id="email" placeholder="Your email" required maxlength="200">
@@ -99,6 +106,11 @@
   <footer>
     <p>&copy; 2026 Kelvin Muthara. Built with Node.js, Express and SQLite.</p>
   </footer>
+
+  <div id="lightbox" class="lightbox" hidden>
+    <button type="button" id="lightbox-close" class="lightbox-close" aria-label="Close photo">&times;</button>
+    <img id="lightbox-img" alt="">
+  </div>
 
   <script src="js/main.js"></script>
 </body>

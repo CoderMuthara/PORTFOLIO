@@ -3,15 +3,6 @@ const dashboardSection = document.getElementById('dashboard-section');
 const loginForm = document.getElementById('login-form');
 const loginStatus = document.getElementById('login-status');
 
-const projectForm = document.getElementById('project-form');
-const projectStatus = document.getElementById('project-status');
-const projectList = document.getElementById('project-list');
-const formTitle = document.getElementById('form-title');
-const saveBtn = document.getElementById('save-btn');
-const cancelBtn = document.getElementById('cancel-btn');
-
-let projects = [];
-
 // Stops text from being treated as HTML (a security habit)
 function escapeHtml(text) {
   return String(text || '')
@@ -21,82 +12,14 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
 function showDashboard() {
   loginSection.hidden = true;
   dashboardSection.hidden = false;
+  loadProfile();
+  loadSkills();
   loadProjects();
   loadMessages();
-}
-
-// ---------- Messages ----------
-const messageList = document.getElementById('message-list');
-
-// Turns 0712 345 678 or +254 712 345 678 into 254712345678 (what WhatsApp links need)
-function toWhatsAppNumber(phone) {
-  let digits = phone.replace(/\D/g, '');
-  if (digits.startsWith('0')) digits = '254' + digits.slice(1);
-  if (digits.length === 9) digits = '254' + digits;
-  return digits;
-}
-
-async function loadMessages() {
-  const response = await fetch('/api/contact');
-
-  if (response.status === 401) return showLogin();
-
-  const messages = await response.json();
-
-  if (messages.length === 0) {
-    messageList.textContent = 'No messages yet.';
-    return;
-  }
-
-  messageList.innerHTML = messages.map(m => {
-    const subject = encodeURIComponent('Re: Your message on my portfolio');
-    const body = encodeURIComponent(`Hi ${m.name},\n\nThank you for reaching out.\n\n`);
-    const to = encodeURIComponent(m.email);
-
-    const mailtoLink = `mailto:${to}?subject=${subject}&body=${body}`;
-    const gmailLink = `https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`;
-
-    // Only show the WhatsApp button if the visitor left a number
-        // Only show phone buttons if the visitor left a number
-    let whatsappButton = '';
-    let callButton = '';
-    if (m.phone) {
-      const text = encodeURIComponent(`Hi ${m.name}, thank you for reaching out through my portfolio.`);
-      const number = toWhatsAppNumber(m.phone);
-      const whatsappLink = `https://wa.me/${number}?text=${text}`;
-      whatsappButton = `<a class="btn whatsapp" href="${whatsappLink}" target="_blank" rel="noopener">Reply on WhatsApp</a>`;
-      callButton = `<a class="btn outline" href="tel:+${number}">Call</a>`;
-    }
-
-    return `
-      <div class="message">
-        <p><strong>${escapeHtml(m.name)}</strong> (${escapeHtml(m.email)})</p>
-        ${m.phone ? `<p>Phone: ${escapeHtml(m.phone)}</p>` : ''}
-        <p><small>${new Date(m.created_at + 'Z').toLocaleString()}</small></p>
-        <p style="white-space: pre-wrap;">${escapeHtml(m.message)}</p>
-        <a class="btn" href="${mailtoLink}">Reply</a>
-        <a class="btn outline" href="${gmailLink}" target="_blank" rel="noopener">Reply in Gmail</a>
-        ${whatsappButton}
-        ${callButton}
-        <button onclick="deleteMessage(${m.id})">Delete</button>
-      </div>
-    `;
-  }).join('');
-}
-
-async function deleteMessage(id) {
-  if (!confirm('Delete this message?')) return;
-
-  const response = await fetch(`/api/contact/${id}`, { method: 'DELETE' });
-
-  if (response.status === 401) return showLogin();
-
-  if (response.ok) {
-    loadMessages();
-  }
 }
 
 function showLogin() {
@@ -141,7 +64,106 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
   showLogin();
 });
 
+// ---------- Skills ----------
+const skillForm = document.getElementById('skill-form');
+const skillList = document.getElementById('skill-list');
+const skillStatus = document.getElementById('skill-status');
+const skillSaveBtn = document.getElementById('skill-save-btn');
+const skillCancelBtn = document.getElementById('skill-cancel-btn');
+let skills = [];
+
+async function loadSkills() {
+  const response = await fetch('/api/skills');
+  skills = await response.json();
+
+  if (skills.length === 0) {
+    skillList.textContent = 'No skills yet.';
+    return;
+  }
+
+  const groups = {};
+  skills.forEach(s => {
+    (groups[s.category] = groups[s.category] || []).push(s);
+  });
+
+  skillList.innerHTML = Object.keys(groups).map(category => `
+    <div class="skill-group">
+      <h3>${escapeHtml(category)}</h3>
+      <ul class="skills">
+        ${groups[category].map(s => `
+          <li>
+            ${escapeHtml(s.name)}
+            <button class="mini ghost" onclick="startSkillEdit(${s.id})">Edit</button>
+            <button class="mini danger" onclick="deleteSkill(${s.id})">×</button>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+}
+
+function resetSkillForm() {
+  skillForm.reset();
+  document.getElementById('skill-id').value = '';
+  skillSaveBtn.textContent = 'Add skill';
+  skillCancelBtn.hidden = true;
+}
+
+function startSkillEdit(id) {
+  const s = skills.find(skill => skill.id === id);
+  document.getElementById('skill-id').value = s.id;
+  document.getElementById('skill-name').value = s.name;
+  document.getElementById('skill-category').value = s.category;
+  skillSaveBtn.textContent = 'Save changes';
+  skillCancelBtn.hidden = false;
+  document.getElementById('skill-name').focus();
+}
+
+skillCancelBtn.addEventListener('click', resetSkillForm);
+
+skillForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const id = document.getElementById('skill-id').value;
+  const response = await fetch(id ? `/api/skills/${id}` : '/api/skills', {
+    method: id ? 'PUT' : 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: document.getElementById('skill-name').value,
+      category: document.getElementById('skill-category').value
+    })
+  });
+  const result = await response.json();
+
+  if (response.status === 401) return showLogin();
+
+  if (response.ok) {
+    skillStatus.textContent = id ? 'Skill updated.' : 'Skill added.';
+    resetSkillForm();
+    loadSkills();
+  } else {
+    skillStatus.textContent = result.error;
+  }
+});
+
+async function deleteSkill(id) {
+  if (!confirm('Delete this skill?')) return;
+
+  const response = await fetch(`/api/skills/${id}`, { method: 'DELETE' });
+
+  if (response.status === 401) return showLogin();
+  if (response.ok) loadSkills();
+}
+
 // ---------- Projects ----------
+const projectForm = document.getElementById('project-form');
+const projectStatus = document.getElementById('project-status');
+const projectList = document.getElementById('project-list');
+const formTitle = document.getElementById('form-title');
+const saveBtn = document.getElementById('save-btn');
+const cancelBtn = document.getElementById('cancel-btn');
+let projects = [];
+
 async function loadProjects() {
   const response = await fetch('/api/projects');
   projects = await response.json();
@@ -154,13 +176,11 @@ async function loadProjects() {
   projectList.innerHTML = projects.map(p => `
     <div class="project">
       ${p.image ? `<img class="project-img" src="/uploads/${escapeHtml(p.image)}" alt="">` : ''}
-      <div class="project-body">
-        <h3>${escapeHtml(p.title)}</h3>
-        <p>${escapeHtml(p.description)}</p>
-        <p><strong>Tech:</strong> ${escapeHtml(p.tech)}</p>
-        <button onclick="startEdit(${p.id})">Edit</button>
-        <button onclick="deleteProject(${p.id})">Delete</button>
-      </div>
+      <h3>${escapeHtml(p.title)}</h3>
+      <p><small>${escapeHtml(p.category || 'No category')}</small></p>
+      <p>${escapeHtml(p.description)}</p>
+      <button class="ghost" onclick="startEdit(${p.id})">Edit</button>
+      <button class="danger" onclick="deleteProject(${p.id})">Delete</button>
     </div>
   `).join('');
 }
@@ -177,16 +197,16 @@ function startEdit(id) {
   const p = projects.find(project => project.id === id);
   document.getElementById('project-id').value = p.id;
   document.getElementById('title').value = p.title;
+  document.getElementById('category').value = p.category || '';
   document.getElementById('description').value = p.description;
   document.getElementById('tech').value = p.tech;
   document.getElementById('live_url').value = p.live_url === '#' ? '' : p.live_url;
   document.getElementById('code_url').value = p.code_url === '#' ? '' : p.code_url;
-  document.getElementById('category').value = p.category || '';
 
   formTitle.textContent = 'Edit project';
   saveBtn.textContent = 'Save changes';
   cancelBtn.hidden = false;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  projectForm.scrollIntoView({ behavior: 'smooth' });
 }
 
 cancelBtn.addEventListener('click', resetForm);
@@ -198,16 +218,16 @@ projectForm.addEventListener('submit', async (event) => {
 
   const formData = new FormData();
   formData.append('title', document.getElementById('title').value);
+  formData.append('category', document.getElementById('category').value);
   formData.append('description', document.getElementById('description').value);
   formData.append('tech', document.getElementById('tech').value);
   formData.append('live_url', document.getElementById('live_url').value);
   formData.append('code_url', document.getElementById('code_url').value);
-  formData.append('category', document.getElementById('category').value);
 
   const imageFile = document.getElementById('image').files[0];
   if (imageFile) formData.append('image', imageFile);
 
-  // Note: no Content-Type header here, the browser sets it for file uploads
+  // No Content-Type header here, the browser sets it for file uploads
   const response = await fetch(id ? `/api/projects/${id}` : '/api/projects', {
     method: id ? 'PUT' : 'POST',
     body: formData
@@ -238,5 +258,146 @@ async function deleteProject(id) {
     projectStatus.textContent = 'Could not delete the project.';
   }
 }
+
+// ---------- Messages ----------
+const messageList = document.getElementById('message-list');
+
+// Turns 0712 345 678 or +254 712 345 678 into 254712345678
+function toWhatsAppNumber(phone) {
+  let digits = phone.replace(/\D/g, '');
+  if (digits.startsWith('0')) digits = '254' + digits.slice(1);
+  if (digits.length === 9) digits = '254' + digits;
+  return digits;
+}
+
+async function loadMessages() {
+  const response = await fetch('/api/contact');
+
+  if (response.status === 401) return showLogin();
+
+  const messages = await response.json();
+
+  if (messages.length === 0) {
+    messageList.textContent = 'No messages yet.';
+    return;
+  }
+
+  messageList.innerHTML = messages.map(m => {
+    const subject = encodeURIComponent('Re: Your message on my portfolio');
+    const body = encodeURIComponent(`Hi ${m.name},\n\nThank you for reaching out.\n\n`);
+    const to = encodeURIComponent(m.email);
+
+    const mailtoLink = `mailto:${to}?subject=${subject}&body=${body}`;
+    const gmailLink = `https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`;
+
+    let whatsappButton = '';
+    let callButton = '';
+    if (m.phone) {
+      const text = encodeURIComponent(`Hi ${m.name}, thank you for reaching out through my portfolio.`);
+      const number = toWhatsAppNumber(m.phone);
+      whatsappButton = `<a class="btn whatsapp" href="https://wa.me/${number}?text=${text}" target="_blank" rel="noopener">Reply on WhatsApp</a>`;
+      callButton = `<a class="btn outline" href="tel:+${number}">Call</a>`;
+    }
+
+    return `
+      <div class="message">
+        <p><strong>${escapeHtml(m.name)}</strong> (${escapeHtml(m.email)})</p>
+        ${m.phone ? `<p>Phone: ${escapeHtml(m.phone)}</p>` : ''}
+        <p><small>${new Date(m.created_at + 'Z').toLocaleString()}</small></p>
+        <p style="white-space: pre-wrap;">${escapeHtml(m.message)}</p>
+        <a class="btn" href="${mailtoLink}">Reply</a>
+        <a class="btn outline" href="${gmailLink}" target="_blank" rel="noopener">Reply in Gmail</a>
+        ${whatsappButton}
+        ${callButton}
+        <button class="danger" onclick="deleteMessage(${m.id})">Delete</button>
+      </div>
+    `;
+  }).join('');
+}
+
+async function deleteMessage(id) {
+  if (!confirm('Delete this message?')) return;
+
+  const response = await fetch(`/api/contact/${id}`, { method: 'DELETE' });
+
+  if (response.status === 401) return showLogin();
+  if (response.ok) loadMessages();
+}
+
+// ---------- Profile photo ----------
+const photoForm = document.getElementById('photo-form');
+const photoPreview = document.getElementById('photo-preview');
+const photoStatus = document.getElementById('photo-status');
+const photoRemove = document.getElementById('photo-remove');
+
+async function loadProfile() {
+  const response = await fetch('/api/profile');
+  const { photo } = await response.json();
+
+  photoPreview.innerHTML = photo
+    ? `<img class="profile-photo small" src="/uploads/${escapeHtml(photo)}" alt="Your profile photo">`
+    : '<p>No photo yet.</p>';
+  photoRemove.hidden = !photo;
+}
+
+photoForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const file = document.getElementById('photo').files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('photo', file);
+
+  const response = await fetch('/api/profile/photo', { method: 'POST', body: formData });
+  const result = await response.json();
+
+  if (response.status === 401) return showLogin();
+
+  if (response.ok) {
+    photoStatus.textContent = 'Photo updated.';
+    photoForm.reset();
+    loadProfile();
+  } else {
+    photoStatus.textContent = result.error;
+  }
+});
+
+photoForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const file = document.getElementById('photo').files[0];
+  if (!file) {
+    photoStatus.textContent = 'Please choose a photo first.';
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('photo', file);
+  photoStatus.textContent = 'Uploading...';
+
+  try {
+    const response = await fetch('/api/profile/photo', { method: 'POST', body: formData });
+
+    if (response.status === 401) return showLogin();
+    if (response.status === 404) {
+      photoStatus.textContent = 'Upload route not found. Check server.js and restart the server.';
+      return;
+    }
+
+    const result = await response.json();
+
+    if (response.ok) {
+      photoStatus.textContent = 'Photo updated.';
+      photoForm.reset();
+      loadProfile();
+    } else {
+      photoStatus.textContent = result.error;
+    }
+  } catch (error) {
+    photoStatus.textContent = 'Upload failed. Check the browser console and the terminal.';
+    console.error(error);
+  }
+});
 
 checkLogin();

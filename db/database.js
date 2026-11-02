@@ -53,5 +53,30 @@ if (count === 0) {
   insert.run('Sample Project 1', 'A short description of what this project does.', 'HTML, CSS, JavaScript', '#', '#');
   insert.run('Sample Project 2', 'Another project description goes here.', 'Node.js, Express, SQLite', '#', '#');
 }
+// ---------- Skills table ----------
+// ---------- Skills table ----------
+db.exec(`
+  CREATE TABLE IF NOT EXISTS skills (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL DEFAULT 'Other'
+  )
+`);
+
+// Start with your current skills (only runs once, when the table is empty)
+const skillCount = db.prepare('SELECT COUNT(*) AS total FROM skills').get().total;
+if (skillCount === 0) {
+  const insertSkill = db.prepare('INSERT INTO skills (name, category) VALUES (?, ?)');
+  ['HTML', 'CSS', 'JavaScript', 'Node.js', 'Express', 'SQLite', 'Git & GitHub']
+    .forEach(name => insertSkill.run(name, 'Software Development'));
+}
+
+// ---------- Settings table (holds your profile photo) ----------
+db.exec(`
+  CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  )
+`);
 
 module.exports = db;
