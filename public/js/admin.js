@@ -19,6 +19,7 @@ function showDashboard() {
   loadProfile();
   loadSkills();
   loadProjects();
+  loadCerts();
   loadMessages();
 }
 
@@ -419,5 +420,110 @@ cvRemove.addEventListener('click', () => {
     removeItem('/api/profile/cv', cvStatus, 'CV removed.');
   }
 });
+
+// ---------- Certifications ----------
+const certForm = document.getElementById('cert-form');
+const certList = document.getElementById('cert-list');
+const certStatus = document.getElementById('cert-status');
+const certFormTitle = document.getElementById('cert-form-title');
+const certSaveBtn = document.getElementById('cert-save-btn');
+const certCancelBtn = document.getElementById('cert-cancel-btn');
+let certs = [];
+
+async function loadCerts() {
+  const response = await fetch('/api/certifications');
+  certs = await response.json();
+
+  if (certs.length === 0) {
+    certList.textContent = 'No certifications yet.';
+    return;
+  }
+
+  certList.innerHTML = certs.map(c => `
+    <div class="project">
+      <h3>${escapeHtml(c.title)}</h3>
+      <p>${escapeHtml(c.issuer)}${c.issued ? ' · ' + escapeHtml(c.issued) : ''}</p>
+      ${c.file ? `<p><a href="/uploads/${encodeURIComponent(c.file)}" target="_blank" rel="noopener">View file</a></p>` : ''}
+      <button class="ghost" onclick="startCertEdit(${c.id})">Edit</button>
+      <button class="danger" onclick="deleteCert(${c.id})">Delete</button>
+    </div>
+  `).join('');
+}
+
+function resetCertForm() {
+  certForm.reset();
+  document.getElementById('cert-id').value = '';
+  certFormTitle.textContent = 'Add a certification';
+  certSaveBtn.textContent = 'Add certification';
+  certCancelBtn.hidden = true;
+}
+
+function startCertEdit(id) {
+  const c = certs.find(cert => cert.id === id);
+  document.getElementById('cert-id').value = c.id;
+  document.getElementById('cert-title').value = c.title;
+  document.getElementById('cert-issuer').value = c.issuer;
+  document.getElementById('cert-issued').value = c.issued || '';
+  document.getElementById('cert-url').value = c.credential_url || '';
+
+  certFormTitle.textContent = 'Edit certification';
+  certSaveBtn.textContent = 'Save changes';
+  certCancelBtn.hidden = false;
+  certForm.scrollIntoView({ behavior: 'smooth' });
+}
+
+certCancelBtn.addEventListener('click', resetCertForm);
+
+certForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const id = document.getElementById('cert-id').value;
+
+  const formData = new FormData();
+  formData.append('title', document.getElementById('cert-title').value);
+  formData.append('issuer', document.getElementById('cert-issuer').value);
+  formData.append('issued', document.getElementById('cert-issued').value);
+  formData.append('credential_url', document.getElementById('cert-url').value);
+
+  const file = document.getElementById('cert-file').files[0];
+  if (file) formData.append('file', file);
+
+  certStatus.textContent = 'Saving...';
+
+  try {
+    const response = await fetch(id ? `/api/certifications/${id}` : '/api/certifications', {
+      method: id ? 'PUT' : 'POST',
+      body: formData
+    });
+
+    if (response.status === 401) return showLogin();
+    if (response.status === 404) {
+      certStatus.textContent = 'Route not found. Check server.js and restart the server.';
+      return;
+    }
+
+    const result = await response.json();
+
+    if (response.ok) {
+      certStatus.textContent = id ? 'Certification updated.' : 'Certification added.';
+      resetCertForm();
+      loadCerts();
+    } else {
+      certStatus.textContent = result.error;
+    }
+  } catch (error) {
+    certStatus.textContent = 'Something went wrong. Check the browser console.';
+    console.error(error);
+  }
+});
+
+async function deleteCert(id) {
+  if (!confirm('Delete this certification?')) return;
+
+  const response = await fetch(`/api/certifications/${id}`, { method: 'DELETE' });
+
+  if (response.status === 401) return showLogin();
+  if (response.ok) loadCerts();
+}
 
 checkLogin();

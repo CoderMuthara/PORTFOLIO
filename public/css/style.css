@@ -627,3 +627,76 @@ footer p {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
+
+/* ---------- Certifications ---------- */
+.cert-grid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+}
+
+.cert-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.cert-card:hover {
+  border-color: var(--accent);
+}
+
+.cert-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.cert-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.cert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  padding: 1.1rem;
+}
+
+.cert-body h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.cert-date {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.cert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.cert-actions .btn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  margin-left: 0;
+}

@@ -63,6 +63,7 @@ app.use('/api/contact', require('./routes/contact'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/skills', require('./routes/skills'));
 app.use('/api/profile', require('./routes/profile'));
+app.use('/api/certifications', require('./routes/certifications'));
 
 // Unknown API addresses
 app.use('/api', (req, res) => {

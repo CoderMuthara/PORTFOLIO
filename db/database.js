@@ -79,4 +79,16 @@ db.exec(`
   )
 `);
 
+// ---------- Certifications table ----------
+db.exec(`
+  CREATE TABLE IF NOT EXISTS certifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    issuer TEXT NOT NULL,
+    issued TEXT DEFAULT '',
+    credential_url TEXT DEFAULT '',
+    file TEXT DEFAULT ''
+  )
+`);
+
 module.exports = db;

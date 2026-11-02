@@ -157,6 +157,55 @@ document.getElementById('show-more').addEventListener('click', () => {
   renderProjects();
 });
 
+// ---------- Certifications ----------
+function formatMonth(value) {
+  if (!value) return '';
+  const date = new Date(value + '-01T00:00:00');
+  return date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+}
+
+function certCard(c) {
+  const fileUrl = c.file ? '/uploads/' + encodeURIComponent(c.file) : '';
+  const isPdf = c.file && c.file.endsWith('.pdf');
+
+  const thumb = fileUrl && !isPdf
+    ? `<img class="cert-img" src="${escapeHtml(fileUrl)}" alt="Certificate: ${escapeHtml(c.title)}" loading="lazy">`
+    : `<div class="cert-img placeholder">${escapeHtml(c.issuer.charAt(0).toUpperCase())}</div>`;
+
+  const viewBtn = fileUrl
+    ? `<a class="btn" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">View certificate</a>`
+    : '';
+  const verifyBtn = c.credential_url
+    ? `<a class="btn outline" href="${escapeHtml(c.credential_url)}" target="_blank" rel="noopener">Verify online</a>`
+    : '';
+
+  return `
+    <article class="cert-card">
+      ${thumb}
+      <div class="cert-body">
+        <span class="work-category">${escapeHtml(c.issuer)}</span>
+        <h3>${escapeHtml(c.title)}</h3>
+        ${c.issued ? `<p class="cert-date">${escapeHtml(formatMonth(c.issued))}</p>` : ''}
+        <div class="cert-actions">${viewBtn}${verifyBtn}</div>
+      </div>
+    </article>
+  `;
+}
+
+async function loadCerts() {
+  try {
+    const response = await fetch('/api/certifications');
+    const certs = await response.json();
+    if (certs.length === 0) return; // section stays hidden
+
+    document.getElementById('cert-grid').innerHTML = certs.map(certCard).join('');
+    document.getElementById('certifications').hidden = false;
+    document.getElementById('cert-nav').hidden = false;
+  } catch (error) {
+    // Section stays hidden
+  }
+}
+
 // ---------- Profile photo and CV ----------
 async function loadProfile() {
   try {
@@ -212,6 +261,7 @@ document.addEventListener('keydown', (event) => {
 loadProfile();
 loadSkills();
 loadProjects();
+loadCerts();
 
 // ---------- Contact form ----------
 const form = document.getElementById('contact-form');

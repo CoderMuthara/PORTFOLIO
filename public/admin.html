@@ -82,6 +82,33 @@
       <p id="project-status"></p>
     </form>
 
+    <h2 id="cert-form-title">Add a certification</h2>
+    <form id="cert-form">
+      <input type="hidden" id="cert-id">
+      <input type="text" id="cert-title" placeholder="Course / certification (e.g. CCNA: Introduction to Networks)" required
+        maxlength="150">
+      <input type="text" id="cert-issuer" list="issuer-options" placeholder="Issuer (e.g. Cisco)" required maxlength="80">
+      <datalist id="issuer-options">
+        <option value="Cisco">
+        <option value="Huawei">
+        <option value="CompTIA">
+        <option value="Microsoft">
+        <option value="Google">
+        <option value="AWS">
+      </datalist>
+      <label for="cert-issued">Month earned</label>
+      <input type="month" id="cert-issued">
+      <input type="url" id="cert-url" placeholder="Verification link, e.g. Credly (optional)">
+      <label for="cert-file">Certificate file (JPG, PNG, WebP or PDF, max 3 MB)</label>
+      <input type="file" id="cert-file" accept="image/jpeg,image/png,image/webp,application/pdf">
+      <button type="submit" id="cert-save-btn">Add certification</button>
+      <button type="button" id="cert-cancel-btn" class="ghost" hidden>Cancel edit</button>
+      <p id="cert-status"></p>
+    </form>
+    
+    <h2>Your certifications</h2>
+    <div id="cert-list"></div>
+
     <h2>Your projects</h2>
     <div id="project-list"></div>
 
