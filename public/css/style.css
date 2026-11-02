@@ -182,6 +182,10 @@ button:hover {
   border-color: #4ae388;
 }
 
+.btn+.btn {
+  margin-left: 0.5rem;
+}
+
 /* ---------- Skills ---------- */
 .skills {
   display: flex;
@@ -346,4 +350,64 @@ footer {
 
 footer p {
   margin: 0;
+}
+
+/* ---------- Project cards with images ---------- */
+.project {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.project-body {
+  padding: 1.25rem;
+}
+
+.project-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.project-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Makes the whole card clickable through the title link */
+.project h3 a.stretched {
+  color: var(--text);
+}
+
+.project h3 a.stretched::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.project:hover h3 a.stretched {
+  color: var(--accent);
+}
+
+.project .cta {
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.project .live-link {
+  position: relative;
+  z-index: 2;
+}
+
+/* Keep the admin list tidy */
+#project-list .project {
+  max-width: 360px;
 }

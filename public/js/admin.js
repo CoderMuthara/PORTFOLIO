@@ -14,11 +14,13 @@ let projects = [];
 
 // Stops text from being treated as HTML (a security habit)
 function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text || '';
-  return div.innerHTML;
+  return String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
-
 function showDashboard() {
   loginSection.hidden = true;
   dashboardSection.hidden = false;
@@ -58,11 +60,15 @@ async function loadMessages() {
     const gmailLink = `https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`;
 
     // Only show the WhatsApp button if the visitor left a number
+        // Only show phone buttons if the visitor left a number
     let whatsappButton = '';
+    let callButton = '';
     if (m.phone) {
       const text = encodeURIComponent(`Hi ${m.name}, thank you for reaching out through my portfolio.`);
-      const whatsappLink = `https://wa.me/${toWhatsAppNumber(m.phone)}?text=${text}`;
+      const number = toWhatsAppNumber(m.phone);
+      const whatsappLink = `https://wa.me/${number}?text=${text}`;
       whatsappButton = `<a class="btn whatsapp" href="${whatsappLink}" target="_blank" rel="noopener">Reply on WhatsApp</a>`;
+      callButton = `<a class="btn outline" href="tel:+${number}">Call</a>`;
     }
 
     return `
@@ -74,6 +80,7 @@ async function loadMessages() {
         <a class="btn" href="${mailtoLink}">Reply</a>
         <a class="btn outline" href="${gmailLink}" target="_blank" rel="noopener">Reply in Gmail</a>
         ${whatsappButton}
+        ${callButton}
         <button onclick="deleteMessage(${m.id})">Delete</button>
       </div>
     `;
@@ -146,11 +153,14 @@ async function loadProjects() {
 
   projectList.innerHTML = projects.map(p => `
     <div class="project">
-      <h3>${escapeHtml(p.title)}</h3>
-      <p>${escapeHtml(p.description)}</p>
-      <p><strong>Tech:</strong> ${escapeHtml(p.tech)}</p>
-      <button onclick="startEdit(${p.id})">Edit</button>
-      <button onclick="deleteProject(${p.id})">Delete</button>
+      ${p.image ? `<img class="project-img" src="/uploads/${escapeHtml(p.image)}" alt="">` : ''}
+      <div class="project-body">
+        <h3>${escapeHtml(p.title)}</h3>
+        <p>${escapeHtml(p.description)}</p>
+        <p><strong>Tech:</strong> ${escapeHtml(p.tech)}</p>
+        <button onclick="startEdit(${p.id})">Edit</button>
+        <button onclick="deleteProject(${p.id})">Delete</button>
+      </div>
     </div>
   `).join('');
 }
@@ -184,19 +194,21 @@ projectForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const id = document.getElementById('project-id').value;
-  const data = {
-    title: document.getElementById('title').value,
-    description: document.getElementById('description').value,
-    tech: document.getElementById('tech').value,
-    live_url: document.getElementById('live_url').value,
-    code_url: document.getElementById('code_url').value
-  };
 
-  // If there's an id we are editing (PUT), otherwise adding (POST)
+  const formData = new FormData();
+  formData.append('title', document.getElementById('title').value);
+  formData.append('description', document.getElementById('description').value);
+  formData.append('tech', document.getElementById('tech').value);
+  formData.append('live_url', document.getElementById('live_url').value);
+  formData.append('code_url', document.getElementById('code_url').value);
+
+  const imageFile = document.getElementById('image').files[0];
+  if (imageFile) formData.append('image', imageFile);
+
+  // Note: no Content-Type header here, the browser sets it for file uploads
   const response = await fetch(id ? `/api/projects/${id}` : '/api/projects', {
     method: id ? 'PUT' : 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
+    body: formData
   });
   const result = await response.json();
 

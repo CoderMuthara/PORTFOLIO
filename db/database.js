@@ -26,10 +26,17 @@ db.exec(`
   )
 `);
 
+
 // Add the phone column if it isn't there yet
 const messageColumns = db.prepare('PRAGMA table_info(messages)').all();
 if (!messageColumns.some(column => column.name === 'phone')) {
   db.exec("ALTER TABLE messages ADD COLUMN phone TEXT DEFAULT ''");
+}
+
+// Add the image column if it isn't there yet
+const projectColumns = db.prepare('PRAGMA table_info(projects)').all();
+if (!projectColumns.some(column => column.name === 'image')) {
+  db.exec("ALTER TABLE projects ADD COLUMN image TEXT DEFAULT ''");
 }
 
 // Add sample data only if the table is empty
