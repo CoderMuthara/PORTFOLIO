@@ -25,6 +25,44 @@ function showDashboard() {
   loadProjects();
 }
 
+// ---------- Messages ----------
+const messageList = document.getElementById('message-list');
+
+async function loadMessages() {
+  const response = await fetch('/api/contact');
+
+  if (response.status === 401) return showLogin();
+
+  const messages = await response.json();
+
+  if (messages.length === 0) {
+    messageList.textContent = 'No messages yet.';
+    return;
+  }
+
+  messageList.innerHTML = messages.map(m => `
+    <div class="message">
+      <p><strong>${escapeHtml(m.name)}</strong>
+        (<a href="mailto:${escapeHtml(m.email)}">${escapeHtml(m.email)}</a>)</p>
+      <p><small>${new Date(m.created_at + 'Z').toLocaleString()}</small></p>
+      <p style="white-space: pre-wrap;">${escapeHtml(m.message)}</p>
+      <button onclick="deleteMessage(${m.id})">Delete</button>
+    </div>
+  `).join('');
+}
+
+async function deleteMessage(id) {
+  if (!confirm('Delete this message?')) return;
+
+  const response = await fetch(`/api/contact/${id}`, { method: 'DELETE' });
+
+  if (response.status === 401) return showLogin();
+
+  if (response.ok) {
+    loadMessages();
+  }
+}
+
 function showLogin() {
   loginSection.hidden = false;
   dashboardSection.hidden = true;
