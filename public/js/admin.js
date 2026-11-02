@@ -23,6 +23,7 @@ function showDashboard() {
   loginSection.hidden = true;
   dashboardSection.hidden = false;
   loadProjects();
+  loadMessages();
 }
 
 // ---------- Messages ----------
@@ -40,15 +41,25 @@ async function loadMessages() {
     return;
   }
 
-  messageList.innerHTML = messages.map(m => `
-    <div class="message">
-      <p><strong>${escapeHtml(m.name)}</strong>
-        (<a href="mailto:${escapeHtml(m.email)}">${escapeHtml(m.email)}</a>)</p>
-      <p><small>${new Date(m.created_at + 'Z').toLocaleString()}</small></p>
-      <p style="white-space: pre-wrap;">${escapeHtml(m.message)}</p>
-      <button onclick="deleteMessage(${m.id})">Delete</button>
-    </div>
-  `).join('');
+  messageList.innerHTML = messages.map(m => {
+    const subject = encodeURIComponent('Re: Your message on my portfolio');
+    const body = encodeURIComponent(`Hi ${m.name},\n\nThank you for reaching out.\n\n`);
+    const to = encodeURIComponent(m.email);
+
+    const mailtoLink = `mailto:${to}?subject=${subject}&body=${body}`;
+    const gmailLink = `https://mail.google.com/mail/?view=cm&to=${to}&su=${subject}&body=${body}`;
+
+    return `
+      <div class="message">
+        <p><strong>${escapeHtml(m.name)}</strong> (${escapeHtml(m.email)})</p>
+        <p><small>${new Date(m.created_at + 'Z').toLocaleString()}</small></p>
+        <p style="white-space: pre-wrap;">${escapeHtml(m.message)}</p>
+        <a class="btn" href="${mailtoLink}">Reply</a>
+        <a class="btn outline" href="${gmailLink}" target="_blank" rel="noopener">Reply in Gmail</a>
+        <button onclick="deleteMessage(${m.id})">Delete</button>
+      </div>
+    `;
+  }).join('');
 }
 
 async function deleteMessage(id) {

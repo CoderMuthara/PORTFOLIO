@@ -1,3 +1,16 @@
+// Stops text from being treated as HTML (a security habit)
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
+}
+
+// Only show a link if it's a real URL (not empty or the "#" placeholder)
+function linkIfValid(url, label) {
+  if (!url || url === '#') return '';
+  return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${label}</a>`;
+}
+
 async function loadProjects() {
   const container = document.getElementById('projects');
 
@@ -5,14 +18,21 @@ async function loadProjects() {
     const response = await fetch('/api/projects');
     const projects = await response.json();
 
+    if (projects.length === 0) {
+      container.textContent = 'Projects coming soon.';
+      return;
+    }
+
     container.innerHTML = projects.map(p => `
-      <div class="project">
-        <h3>${p.title}</h3>
-        <p>${p.description}</p>
-        <p><strong>Tech:</strong> ${p.tech}</p>
-        <a href="${p.live_url}">Live</a> |
-        <a href="${p.code_url}">Code</a>
-      </div>
+      <article class="project">
+        <h3>${escapeHtml(p.title)}</h3>
+        <p>${escapeHtml(p.description)}</p>
+        <p class="tech"><strong>Tech:</strong> ${escapeHtml(p.tech)}</p>
+        <p class="links">
+          ${linkIfValid(p.live_url, 'Live')}
+          ${linkIfValid(p.code_url, 'Code')}
+        </p>
+      </article>
     `).join('');
   } catch (error) {
     container.textContent = 'Could not load projects.';
@@ -21,11 +41,12 @@ async function loadProjects() {
 
 loadProjects();
 
+// ---- Contact form ----
 const form = document.getElementById('contact-form');
-const status = document.getElementById('form-status');
+const formStatus = document.getElementById('form-status');
 
 form.addEventListener('submit', async (event) => {
-  event.preventDefault(); // stops the page from reloading
+  event.preventDefault();
 
   const data = {
     name: document.getElementById('name').value,
@@ -42,12 +63,12 @@ form.addEventListener('submit', async (event) => {
     const result = await response.json();
 
     if (response.ok) {
-      status.textContent = 'Message sent. Thank you!';
+      formStatus.textContent = 'Message sent. Thank you!';
       form.reset();
     } else {
-      status.textContent = result.error;
+      formStatus.textContent = result.error;
     }
   } catch (error) {
-    status.textContent = 'Something went wrong. Please try again.';
+    formStatus.textContent = 'Something went wrong. Please try again.';
   }
 });

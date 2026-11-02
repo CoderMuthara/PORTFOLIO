@@ -4,24 +4,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Name | Software Developer</title>
+  <meta name="description" content="Portfolio of Kelvin Muthara, an aspiring software developer.">
+  <title>Kelvin Muthara | Software Developer</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
-  <h1>Hello, I'm Kelvin Muthara</h1>
-  <p>Aspiring software developer at Laikipia University.</p>
+<body id="top">
+  <header class="site-header">
+    <div class="container nav">
+      <a href="#top" class="logo">KM<span>.</span></a>
+      <nav>
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-  <h2>Projects</h2>
-  <div id="projects"></div>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <p class="eyebrow">Hello, I'm</p>
+        <h1>Kelvin Muthara</h1>
+        <p class="tagline">
+          Aspiring software developer at Laikipia University, building web apps
+          with JavaScript and Node.js. Currently looking for an attachment opportunity.
+        </p>
+        <div class="buttons">
+          <a class="btn" href="#projects">View my work</a>
+          <a class="btn outline" href="https://github.com/CoderMuthara" target="_blank"
+            rel="noopener">GitHub</a>
+          <a class="btn outline" href="#contact">Contact me</a>
+        </div>
+      </div>
+    </section>
 
-  <h2>Contact Me</h2>
-  <form id="contact-form">
-    <input type="text" id="name" placeholder="Your name" required>
-    <input type="email" id="email" placeholder="Your email" required>
-    <textarea id="message" placeholder="Your message" rows="5" required></textarea>
-    <button type="submit">Send</button>
-    <p id="form-status"></p>
-  </form>
+    <section id="about">
+      <div class="container">
+        <h2>About</h2>
+        <p>
+          I'm a student at Laikipia University learning full-stack web development.
+          I enjoy turning ideas into working applications, and I'm looking for an
+          attachment where I can learn from experienced developers and contribute to real projects.
+        </p>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="container">
+        <h2>Skills</h2>
+        <ul class="skills">
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>JavaScript</li>
+          <li>Node.js</li>
+          <li>Express</li>
+          <li>SQLite</li>
+          <li>Git &amp; GitHub</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="container">
+        <h2>Projects</h2>
+        <div id="projects" class="project-grid"></div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="container">
+        <h2>Contact me</h2>
+        <p>Have an opportunity or a question? Send me a message.</p>
+        <form id="contact-form">
+          <input type="text" id="name" placeholder="Your name" required maxlength="100">
+          <input type="email" id="email" placeholder="Your email" required maxlength="200">
+          <textarea id="message" placeholder="Your message" rows="5" required maxlength="2000"></textarea>
+          <button type="submit">Send message</button>
+          <p id="form-status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 Kelvin Muthara. Built with Node.js, Express and SQLite.</p>
+  </footer>
 
   <script src="js/main.js"></script>
 </body>

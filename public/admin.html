@@ -5,11 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
   <!-- Shown when logged out -->
-  <div id="login-section">
+    <div id="login-section" class="container narrow">
     <h1>Admin Login</h1>
     <form id="login-form">
       <input type="text" id="username" placeholder="Username" required>
@@ -20,7 +21,7 @@
   </div>
 
   <!-- Shown when logged in -->
-  <div id="dashboard-section" hidden>
+    <div id="dashboard-section" class="container" hidden>
     <h1>Dashboard</h1>
     <button id="logout-btn">Log out</button>
 
