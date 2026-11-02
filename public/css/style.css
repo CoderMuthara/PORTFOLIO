@@ -411,3 +411,162 @@ footer p {
 #project-list .project {
   max-width: 360px;
 }
+
+/* ---------- Projects section: warm "Selected work" style ---------- */
+#work {
+  --w-bg: #fbf1e5;
+  --w-card: #fff8ef;
+  --w-ink: #2b1810;
+  --w-muted: #7a6a5d;
+  --w-accent: #c8562f;
+  --w-chip: #f1ddc4;
+
+  background: var(--w-bg);
+  color: var(--w-ink);
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+#work .eyebrow {
+  color: var(--w-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+#work .section-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  color: var(--w-ink);
+  margin-bottom: 2rem;
+}
+
+.work-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+}
+
+.work-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--w-card);
+  border: 2px solid var(--w-ink);
+  border-radius: 22px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.work-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 6px 6px 0 var(--w-ink);
+}
+
+.work-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-bottom: 2px solid var(--w-ink);
+  background: var(--w-chip);
+}
+
+.work-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 4rem;
+  font-weight: 800;
+  color: var(--w-accent);
+}
+
+.work-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  flex: 1;
+  padding: 1.5rem;
+}
+
+.work-category {
+  align-self: flex-start;
+  padding: 0.3rem 0.9rem;
+  background: var(--w-chip);
+  border: 1px solid var(--w-ink);
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.work-title {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: 2rem;
+}
+
+.work-title a {
+  color: inherit;
+}
+
+/* Makes the whole card clickable through the title link */
+.work-title a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.work-desc {
+  margin: 0;
+  color: var(--w-muted);
+}
+
+.work-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.work-chips li {
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--w-ink);
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.work-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.work-btn {
+  display: inline-block;
+  padding: 0.7rem 1.4rem;
+  color: #fff;
+  background: var(--w-accent);
+  border: 2px solid var(--w-ink);
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.work-live {
+  position: relative;
+  z-index: 2;
+  color: var(--w-ink);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.work-live:hover {
+  color: var(--w-accent);
+}

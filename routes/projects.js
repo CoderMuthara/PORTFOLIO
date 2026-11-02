@@ -47,13 +47,16 @@ function removeFile(filename) {
 
 // Checks the text fields. Returns an error message or null.
 function validate(body) {
-  const { title, description, tech, live_url, code_url } = body;
+  const { title, description, tech, category, live_url, code_url } = body;
 
   if (!title || !description || !tech) {
     return 'Title, description and tech are required.';
   }
   if (title.length > 100 || tech.length > 200 || description.length > 1000) {
     return 'One of the fields is too long.';
+  }
+  if ((category || '').length > 50) {
+    return 'Category is too long.';
   }
   for (const url of [live_url, code_url]) {
     if (url && !/^https?:\/\//i.test(url)) {
@@ -62,7 +65,6 @@ function validate(body) {
   }
   return null;
 }
-
 // GET /api/projects -> public
 router.get('/', (req, res) => {
   const projects = db.prepare('SELECT * FROM projects ORDER BY id DESC').all();
@@ -77,12 +79,12 @@ router.post('/', requireAuth, handleUpload, (req, res) => {
     return res.status(400).json({ error });
   }
 
-  const { title, description, tech, live_url, code_url } = req.body;
+  const { title, description, tech, category, live_url, code_url } = req.body;
   const image = req.file ? req.file.filename : '';
 
   const result = db.prepare(
-    'INSERT INTO projects (title, description, tech, live_url, code_url, image) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(title.trim(), description.trim(), tech.trim(), live_url || '', code_url || '', image);
+    'INSERT INTO projects (title, description, tech, category, live_url, code_url, image) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(title.trim(), description.trim(), tech.trim(), (category || '').trim(), live_url || '', code_url || '', image);
 
   res.status(201).json({ id: result.lastInsertRowid });
 });
@@ -101,17 +103,16 @@ router.put('/:id', requireAuth, handleUpload, (req, res) => {
     return res.status(404).json({ error: 'Project not found.' });
   }
 
-  // Keep the old image unless a new one was uploaded
   let image = existing.image;
   if (req.file) {
     removeFile(existing.image);
     image = req.file.filename;
   }
 
-  const { title, description, tech, live_url, code_url } = req.body;
+  const { title, description, tech, category, live_url, code_url } = req.body;
   db.prepare(
-    'UPDATE projects SET title = ?, description = ?, tech = ?, live_url = ?, code_url = ?, image = ? WHERE id = ?'
-  ).run(title.trim(), description.trim(), tech.trim(), live_url || '', code_url || '', image, req.params.id);
+    'UPDATE projects SET title = ?, description = ?, tech = ?, category = ?, live_url = ?, code_url = ?, image = ? WHERE id = ?'
+  ).run(title.trim(), description.trim(), tech.trim(), (category || '').trim(), live_url || '', code_url || '', image, req.params.id);
 
   res.json({ success: true });
 });

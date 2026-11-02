@@ -29,30 +29,41 @@ async function loadProjects() {
       const cta = hasCode ? 'View on GitHub →' : 'View project →';
 
       const image = p.image
-        ? `<img class="project-img" src="/uploads/${escapeHtml(p.image)}"
+        ? `<img class="work-img" src="/uploads/${escapeHtml(p.image)}"
                 alt="Screenshot of ${escapeHtml(p.title)}" loading="lazy">`
-        : `<div class="project-img placeholder">${escapeHtml(p.title.charAt(0).toUpperCase())}</div>`;
+        : `<div class="work-img placeholder">${escapeHtml(p.title.charAt(0).toUpperCase())}</div>`;
+
+      const category = p.category
+        ? `<span class="work-category">${escapeHtml(p.category)}</span>`
+        : '';
+
+      const chips = p.tech
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(Boolean)
+        .map(tag => `<li>${escapeHtml(tag)}</li>`)
+        .join('');
 
       const title = mainUrl
-        ? `<a class="stretched" href="${escapeHtml(mainUrl)}" target="_blank" rel="noopener">${escapeHtml(p.title)}</a>`
+        ? `<a href="${escapeHtml(mainUrl)}" target="_blank" rel="noopener">${escapeHtml(p.title)}</a>`
         : escapeHtml(p.title);
 
-      // Show a separate live demo link only when there is also a GitHub link
       const liveLink = hasCode && hasLive
-        ? `<a class="live-link" href="${escapeHtml(p.live_url)}" target="_blank" rel="noopener">Live demo</a>`
+        ? `<a class="work-live" href="${escapeHtml(p.live_url)}" target="_blank" rel="noopener">Live demo</a>`
         : '';
 
       return `
-        <article class="project">
+        <article class="work-card">
           ${image}
-          <div class="project-body">
-            <h3>${title}</h3>
-            <p>${escapeHtml(p.description)}</p>
-            <p class="tech"><strong>Tech:</strong> ${escapeHtml(p.tech)}</p>
-            <p class="links">
-              ${mainUrl ? `<span class="cta">${cta}</span>` : ''}
+          <div class="work-body">
+            ${category}
+            <h3 class="work-title">${title}</h3>
+            <p class="work-desc">${escapeHtml(p.description)}</p>
+            <ul class="work-chips">${chips}</ul>
+            <div class="work-actions">
+              ${mainUrl ? `<span class="work-btn">${cta}</span>` : ''}
               ${liveLink}
-            </p>
+            </div>
           </div>
         </article>
       `;

@@ -39,6 +39,11 @@ if (!projectColumns.some(column => column.name === 'image')) {
   db.exec("ALTER TABLE projects ADD COLUMN image TEXT DEFAULT ''");
 }
 
+// Add the category column if it isn't there yet
+const categoryColumns = db.prepare('PRAGMA table_info(projects)').all();
+if (!categoryColumns.some(column => column.name === 'category')) {
+  db.exec("ALTER TABLE projects ADD COLUMN category TEXT DEFAULT ''");
+}
 // Add sample data only if the table is empty
 const count = db.prepare('SELECT COUNT(*) AS total FROM projects').get().total;
 if (count === 0) {

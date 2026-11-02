@@ -181,6 +181,7 @@ function startEdit(id) {
   document.getElementById('tech').value = p.tech;
   document.getElementById('live_url').value = p.live_url === '#' ? '' : p.live_url;
   document.getElementById('code_url').value = p.code_url === '#' ? '' : p.code_url;
+  document.getElementById('category').value = p.category || '';
 
   formTitle.textContent = 'Edit project';
   saveBtn.textContent = 'Save changes';
@@ -201,6 +202,7 @@ projectForm.addEventListener('submit', async (event) => {
   formData.append('tech', document.getElementById('tech').value);
   formData.append('live_url', document.getElementById('live_url').value);
   formData.append('code_url', document.getElementById('code_url').value);
+  formData.append('category', document.getElementById('category').value);
 
   const imageFile = document.getElementById('image').files[0];
   if (imageFile) formData.append('image', imageFile);
