@@ -22,8 +22,23 @@
   <!-- Shown when logged in -->
   <div id="dashboard-section" hidden>
     <h1>Dashboard</h1>
-    <p>You are logged in.</p>
     <button id="logout-btn">Log out</button>
+
+    <h2 id="form-title">Add a project</h2>
+    <form id="project-form">
+      <input type="hidden" id="project-id">
+      <input type="text" id="title" placeholder="Title" required>
+      <textarea id="description" placeholder="Description" rows="3" required></textarea>
+      <input type="text" id="tech" placeholder="Tech used (e.g. Node.js, Express)" required>
+      <input type="url" id="live_url" placeholder="Live link (https://...)">
+      <input type="url" id="code_url" placeholder="GitHub link (https://...)">
+      <button type="submit" id="save-btn">Add project</button>
+      <button type="button" id="cancel-btn" hidden>Cancel edit</button>
+      <p id="project-status"></p>
+    </form>
+
+    <h2>Your projects</h2>
+    <div id="project-list"></div>
   </div>
 
   <script src="js/admin.js"></script>
