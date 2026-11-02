@@ -16,6 +16,16 @@ db.exec(`
   )
 `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    message TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
 // Add sample data only if the table is empty
 const count = db.prepare('SELECT COUNT(*) AS total FROM projects').get().total;
 if (count === 0) {

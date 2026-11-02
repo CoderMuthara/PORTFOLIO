@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/projects', require('./routes/projects'));
+app.use('/api/contact', require('./routes/contact'));
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
