@@ -8,7 +8,7 @@ function escapeHtml(text) {
     .replace(/'/g, '&#39;');
 }
 
-// ---------- Skills (grouped by category) ----------
+// ---------- Skills (one card per category) ----------
 async function loadSkills() {
   const container = document.getElementById('skills-list');
 
@@ -27,11 +27,17 @@ async function loadSkills() {
     });
 
     container.innerHTML = Object.keys(groups).map(category => `
-      <div class="skill-group">
-        <h3>${escapeHtml(category)}</h3>
+      <div class="skill-card">
+        <div class="skill-card-head">
+          <h3>${escapeHtml(category)}</h3>
+          <span class="skill-count">${groups[category].length}</span>
+        </div>
         <ul class="skills">
           ${groups[category].map(s => `<li>${escapeHtml(s.name)}</li>`).join('')}
         </ul>
+        <button type="button" class="skill-more" data-category="${escapeHtml(category)}">
+          See projects →
+        </button>
       </div>
     `).join('');
   } catch (error) {
@@ -205,6 +211,23 @@ async function loadCerts() {
     // Section stays hidden
   }
 }
+
+// ---------- Skill card button: filter projects by that category ----------
+document.getElementById('skills-list').addEventListener('click', (event) => {
+  const button = event.target.closest('.skill-more');
+  if (!button) return;
+
+  const category = button.dataset.category;
+  const hasProjects = allProjects.some(p => (p.category || 'Other') === category);
+
+  // If there are no projects in that category yet, show all of them
+  activeCategory = hasProjects ? category : 'All';
+  visibleCount = PAGE_SIZE;
+  renderFilters();
+  renderProjects();
+
+  document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
+});
 
 // ---------- Profile photo and CV ----------
 async function loadProfile() {
