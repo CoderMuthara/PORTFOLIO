@@ -173,12 +173,30 @@ function formatMonth(value) {
 function certCard(c) {
   const fileUrl = c.file ? '/uploads/' + encodeURIComponent(c.file) : '';
   const isPdf = c.file && c.file.endsWith('.pdf');
+  const isImage = c.file && !isPdf;
 
-  const thumb = fileUrl && !isPdf
-    ? `<img class="cert-img" src="${escapeHtml(fileUrl)}" alt="Certificate: ${escapeHtml(c.title)}" loading="lazy">`
-    : `<div class="cert-img placeholder">${escapeHtml(c.issuer.charAt(0).toUpperCase())}</div>`;
+  let thumb;
+  if (isImage) {
+    // Clickable preview that opens the full certificate
+    thumb = `
+      <button type="button" class="cert-zoom"
+              data-full="${escapeHtml(fileUrl)}"
+              data-alt="Certificate: ${escapeHtml(c.title)}"
+              aria-label="Enlarge certificate: ${escapeHtml(c.title)}">
+        <img class="cert-img" src="${escapeHtml(fileUrl)}"
+             alt="Certificate: ${escapeHtml(c.title)}" loading="lazy">
+        <span class="cert-hint">Click to enlarge</span>
+      </button>`;
+  } else {
+    thumb = `
+      <div class="cert-img placeholder">
+        ${escapeHtml(c.issuer.charAt(0).toUpperCase())}
+        ${isPdf ? '<span class="pdf-badge">PDF</span>' : ''}
+      </div>`;
+  }
 
-  const viewBtn = fileUrl
+  // Images open in the popup, so the button is only needed for PDFs
+  const viewBtn = isPdf
     ? `<a class="btn" href="${escapeHtml(fileUrl)}" target="_blank" rel="noopener">View certificate</a>`
     : '';
   const verifyBtn = c.credential_url
@@ -256,13 +274,15 @@ async function loadProfile() {
 }
 
 // ---------- Photo magnifier ----------
+// ---------- Photo and certificate magnifier ----------
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
 const profilePhoto = document.getElementById('profile-photo');
 
-function openLightbox() {
-  if (!profilePhoto.src) return;
-  lightboxImg.src = profilePhoto.src;
+function openLightbox(src, alt) {
+  if (!src) return;
+  lightboxImg.src = src;
+  lightboxImg.alt = alt || '';
   lightbox.hidden = false;
 }
 
@@ -270,9 +290,16 @@ function closeLightbox() {
   lightbox.hidden = true;
 }
 
-profilePhoto.addEventListener('click', openLightbox);
+profilePhoto.addEventListener('click', () => openLightbox(profilePhoto.src, profilePhoto.alt));
 profilePhoto.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') openLightbox();
+  if (event.key === 'Enter') openLightbox(profilePhoto.src, profilePhoto.alt);
+});
+
+// Certificate thumbnails
+document.getElementById('cert-grid').addEventListener('click', (event) => {
+  const thumb = event.target.closest('.cert-zoom');
+  if (!thumb) return;
+  openLightbox(thumb.dataset.full, thumb.dataset.alt);
 });
 
 // Click anywhere on the dark background (or the X) to close

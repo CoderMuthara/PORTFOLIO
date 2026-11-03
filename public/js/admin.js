@@ -443,6 +443,7 @@ async function loadCerts() {
     <div class="project">
       <h3>${escapeHtml(c.title)}</h3>
       <p>${escapeHtml(c.issuer)}${c.issued ? ' · ' + escapeHtml(c.issued) : ''}</p>
+      ${c.file && !c.file.endsWith('.pdf') ? `<img class="project-img" src="/uploads/${encodeURIComponent(c.file)}" alt="">` : ''}
       ${c.file ? `<p><a href="/uploads/${encodeURIComponent(c.file)}" target="_blank" rel="noopener">View file</a></p>` : ''}
       <button class="ghost" onclick="startCertEdit(${c.id})">Edit</button>
       <button class="danger" onclick="deleteCert(${c.id})">Delete</button>

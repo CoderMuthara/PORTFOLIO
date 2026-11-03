@@ -772,3 +772,77 @@ footer p {
   background: transparent;
   color: var(--accent-hover);
 }
+
+/* ---------- Certificate previews ---------- */
+.cert-zoom {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  cursor: zoom-in;
+}
+
+.cert-zoom:hover {
+  background: transparent;
+}
+
+/* Show the top of the certificate (title and name) instead of the middle */
+.cert-zoom .cert-img {
+  border-bottom: none;
+  object-position: top center;
+  transition: transform 0.3s;
+}
+
+.cert-zoom:hover .cert-img {
+  transform: scale(1.04);
+}
+
+.cert-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 0.6rem;
+  transform: translateX(-50%);
+  padding: 0.2rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 999px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.cert-zoom:hover .cert-hint,
+.cert-zoom:focus-visible .cert-hint {
+  opacity: 1;
+}
+
+/* Phones have no hover, so always show the hint */
+@media (hover: none) {
+  .cert-hint {
+    opacity: 1;
+  }
+}
+
+.cert-img.placeholder {
+  position: relative;
+}
+
+.pdf-badge {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  padding: 0.1rem 0.6rem;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0d1117;
+  background: var(--accent);
+  border-radius: 999px;
+}
